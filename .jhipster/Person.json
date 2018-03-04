@@ -1,0 +1,20 @@
+{
+    "fluentMethods": true,
+    "relationships": [],
+    "fields": [
+        {
+            "fieldName": "nationalId",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "fullName",
+            "fieldType": "String"
+        }
+    ],
+    "changelogDate": "20180304141902",
+    "dto": "no",
+    "service": "serviceClass",
+    "entityTableName": "person",
+    "jpaMetamodelFiltering": true,
+    "pagination": "infinite-scroll"
+}
