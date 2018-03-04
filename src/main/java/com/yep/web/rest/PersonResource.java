@@ -87,9 +87,9 @@ public class PersonResource {
             .body(result);
     }
 
-    @GetMapping("/people/search/{keyword}")
+    @GetMapping("/people")
     @Timed
-    public ResponseEntity<List<Person>> getAllPeople(String keyword, Pageable pageable) {
+    public ResponseEntity<List<Person>> getAllPeople(@RequestParam String keyword, Pageable pageable) {
         log.debug("REST request to get People by criteria: {}", keyword);
         Page<Person> page;
         if (keyword == null || keyword.isEmpty()) {
