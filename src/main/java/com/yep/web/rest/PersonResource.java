@@ -8,6 +8,7 @@ import com.yep.web.rest.util.HeaderUtil;
 import com.yep.web.rest.util.PaginationUtil;
 import com.yep.service.dto.PersonCriteria;
 import com.yep.service.PersonQueryService;
+import io.github.jhipster.service.filter.StringFilter;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,18 +87,23 @@ public class PersonResource {
             .body(result);
     }
 
-    /**
-     * GET  /people : get all the people.
-     *
-     * @param pageable the pagination information
-     * @param criteria the criterias which the requested entities should match
-     * @return the ResponseEntity with status 200 (OK) and the list of people in body
-     */
-    @GetMapping("/people")
+    @GetMapping("/people/search/{keyword}")
     @Timed
-    public ResponseEntity<List<Person>> getAllPeople(PersonCriteria criteria, Pageable pageable) {
-        log.debug("REST request to get People by criteria: {}", criteria);
-        Page<Person> page = personQueryService.findByCriteria(criteria, pageable);
+    public ResponseEntity<List<Person>> getAllPeople(String keyword, Pageable pageable) {
+        log.debug("REST request to get People by criteria: {}", keyword);
+        Page<Person> page;
+        if (keyword == null || keyword.isEmpty()) {
+            page = personService.findAll(pageable);
+        } else {
+            PersonCriteria searchCriteria = new PersonCriteria();
+            StringFilter fullNameContainsFilter = new StringFilter();
+            fullNameContainsFilter.setContains(keyword);
+            searchCriteria.setFullName(fullNameContainsFilter);
+            StringFilter nationalIdContainsFilter = new StringFilter();
+            nationalIdContainsFilter.setContains(keyword);
+            searchCriteria.setNationalId(nationalIdContainsFilter);
+            page = personQueryService.findByOrCriteria(searchCriteria, pageable);
+        }
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/people");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }

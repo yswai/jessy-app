@@ -46,7 +46,7 @@ public class PersonQueryService extends QueryService<Person> {
     @Transactional(readOnly = true)
     public List<Person> findByCriteria(PersonCriteria criteria) {
         log.debug("find by criteria : {}", criteria);
-        final Specifications<Person> specification = createSpecification(criteria);
+        final Specifications<Person> specification = createAndSpecification(criteria);
         return personRepository.findAll(specification);
     }
 
@@ -59,14 +59,21 @@ public class PersonQueryService extends QueryService<Person> {
     @Transactional(readOnly = true)
     public Page<Person> findByCriteria(PersonCriteria criteria, Pageable page) {
         log.debug("find by criteria : {}, page: {}", criteria, page);
-        final Specifications<Person> specification = createSpecification(criteria);
+        final Specifications<Person> specification = createAndSpecification(criteria);
+        return personRepository.findAll(specification, page);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Person> findByOrCriteria(PersonCriteria criteria, Pageable page) {
+        log.debug("find by criteria : {}, page: {}", criteria, page);
+        final Specifications<Person> specification = createOrSpecification(criteria);
         return personRepository.findAll(specification, page);
     }
 
     /**
      * Function to convert PersonCriteria to a {@link Specifications}
      */
-    private Specifications<Person> createSpecification(PersonCriteria criteria) {
+    private Specifications<Person> createAndSpecification(PersonCriteria criteria) {
         Specifications<Person> specification = Specifications.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {
@@ -77,6 +84,25 @@ public class PersonQueryService extends QueryService<Person> {
             }
             if (criteria.getFullName() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getFullName(), Person_.fullName));
+            }
+        }
+        return specification;
+    }
+
+    /**
+     * Function to convert PersonCriteria to a {@link Specifications}
+     */
+    private Specifications<Person> createOrSpecification(PersonCriteria criteria) {
+        Specifications<Person> specification = Specifications.where(null);
+        if (criteria != null) {
+            if (criteria.getId() != null) {
+                specification = specification.or(buildSpecification(criteria.getId(), Person_.id));
+            }
+            if (criteria.getNationalId() != null) {
+                specification = specification.or(buildStringSpecification(criteria.getNationalId(), Person_.nationalId));
+            }
+            if (criteria.getFullName() != null) {
+                specification = specification.or(buildStringSpecification(criteria.getFullName(), Person_.fullName));
             }
         }
         return specification;
